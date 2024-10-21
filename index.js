@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const fire = require('./fire');
 const serviceAccount = require('./serviceAccountKey.json');
+const path = require('path'); // Added to work with file paths
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +22,10 @@ admin.initializeApp({
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views')); // Set the views directory
+
 // Middleware setup
 app.use(cors());
 app.use(bodyParser.json());
@@ -30,9 +35,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const db = fire.firestore();
 db.settings({ timestampsInSnapshots: true });
 
-// Welcome route
+// Welcome route that renders index.ejs
 app.get('/', (req, res) => {
-  res.send('<h1 style="text-align: center; margin-top: 20%;">Welcome to the server!</h1>');
+  res.render('index');
 });
 
 // GET /data - Retrieve sensor data based on filter and UID
