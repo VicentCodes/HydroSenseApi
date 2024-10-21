@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación de la API</title>
+    <!-- CSS de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Hydrosense API</a>
+        </div>
+      </nav>
+      
+      <div class="container mt-5">
+          <h1 class="mb-4">API Documentation</h1>
+      
+          <section class="mb-5">
+              <h2>Introduction</h2>
+              <p>This API allows you to retrieve and insert sensor data for Hydrosense devices.</p>
+          </section>
+      
+          <section class="mb-5">
+              <h2>Authentication</h2>
+              <p>No authentication is required at this time.</p>
+          </section>
+      
+          <section class="mb-5">
+              <h2>Endpoints</h2>
+      
+              <div class="card mb-4">
+                  <div class="card-header bg-primary text-white">
+                      GET /data
+                  </div>
+                  <div class="card-body">
+                      <h5 class="card-title">Retrieve Sensor Data</h5>
+                      <p class="card-text">Fetches sensor data based on the provided filter and UID.</p>
+                      <h6>Query Parameters:</h6>
+                      <ul>
+                          <li><strong>UID</strong> (string, required): Unique identifier of the user.</li>
+                          <li><strong>filter</strong> (string, required): Data filter. Valid values: <code>top10</code>, <code>1hour</code>, <code>4hours</code>, <code>8hours</code>, <code>12hours</code>, <code>24hours</code>, <code>*</code>.</li>
+                      </ul>
+                      <h6>Response:</h6>
+                      <pre><code>[
+        {
+          "temp": Number,
+          "tds": Number,
+          "ph": Number,
+          "orp": Number,
+          "tur": Number,
+          "date": Timestamp
+        },
+        ...
+      ]</code></pre>
+                  </div>
+              </div>
+      
+              <div class="card mb-4">
+                  <div class="card-header bg-success text-white">
+                      POST /data
+                  </div>
+                  <div class="card-body">
+                      <h5 class="card-title">Insert Sensor Data</h5>
+                      <p class="card-text">Inserts new sensor data into the database.</p>
+                      <h6>Request Body:</h6>
+                      <pre><code>{
+        "temp": Number,
+        "TDS": Number,
+        "pH": Number,
+        "ORP": Number,
+        "TUR": Number,
+        "UID": String
+      }</code></pre>
+                      <h6>Response:</h6>
+                      <pre><code>{
+        "temp": Number,
+        "tds": Number,
+        "ph": Number,
+        "orp": Number,
+        "tur": Number,
+        "date": Timestamp,
+        "status": "Values inserted into the sensors collection."
+      }</code></pre>
+                  </div>
+              </div>
+          </section>
+      
+          <section class="mb-5">
+              <h2>Examples</h2>
+      
+              <h5>Example of GET /data</h5>
+              <pre><code>GET /data?UID=12345&filter=top10</code></pre>
+      
+              <h5>Example of POST /data</h5>
+              <pre><code>POST /data
+      Content-Type: application/json
+      
+      {
+        "temp": 25.5,
+        "TDS": 500,
+        "pH": 7.2,
+        "ORP": 650,
+        "TUR": 2,
+        "UID": "12345"
+      }</code></pre>
+          </section>
+      </div>
+      
+      <!-- Bootstrap JS and dependencies -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      
+      </body>
+      </html>
