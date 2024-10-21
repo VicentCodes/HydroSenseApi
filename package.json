@@ -1,7 +1,7 @@
 {
-  "name": "pisinadorapi",
+  "name": "hydrosense",
   "version": "1.0.0",
-  "description": "Api para el proyecto de pisinador",
+  "description": "API for Hydrosense App",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
