@@ -41,52 +41,54 @@ app.get('/', (req, res) => {
 });
 
 // GET /data - Retrieve sensor data based on filter and UID
-app.get('/data', async (req, res) => {
+app.post('/data', async (req, res) => {
   try {
-    const filter = req.query.filter;
-    const uid = req.query.UID;
+    const { temp, TDS, pH, ORP, TUR, UID } = req.body;
 
-    if (!uid || typeof uid !== 'string' || uid.trim() === '') {
-      return res.status(400).send({ error: 'Invalid or missing UID in the request' });
+    if (!temp || !TDS || !pH || !UID) {
+      return res.status(400).send({ error: 'Missing values in the request body' });
     }
 
-    const validFilters = ['top10', '1hour', '4hours', '8hours', '12hours', '24hours', '*'];
-    if (!validFilters.includes(filter)) {
-      return res.status(400).send({ error: 'Invalid filter' });
+    if (typeof UID !== 'string' || UID.trim() === '') {
+      return res.status(400).send({ error: 'Invalid UID' });
     }
 
-    const userRef = db.collection('hydrosense').doc('users').collection(uid);
-    const snapshot = await userRef.orderBy('date', 'asc').get();
-    let data = snapshot.docs.map((doc) => doc.data());
+    // Verify if the UID exists in Firebase Authentication
+    try {
+      await admin.auth().getUser(UID);
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        console.error('UID does not exist:', UID);
+        return res.status(404).send({ error: 'UID does not exist' });
+      } else {
+        console.error('Error verifying UID:', error);
+        return res.status(500).send({ error: 'Error verifying UID' });
+      }
+    }
 
-    const now = new Date();
-    const filterHoursMap = {
-      '1hour': 1,
-      '4hours': 4,
-      '8hours': 8,
-      '12hours': 12,
-      '24hours': 24,
+    const timestamp = Date.now();
+
+    const userRef = db.collection('hydrosense2').doc('users').collection(UID);
+    const sensorData = {
+      temp,
+      tds: TDS,
+      ph: pH,
+      orp: ORP,
+      tur: TUR,
+      date: timestamp,
     };
 
-    if (filter === 'top10') {
-      // Get the latest 10 entries
-      data = data.sort((a, b) => b.date - a.date).slice(0, 10);
-    } else if (filter in filterHoursMap) {
-      const hoursAgo = new Date(now.getTime() - filterHoursMap[filter] * 60 * 60 * 1000);
-      data = data.filter((item) => new Date(item.date) >= hoursAgo);
-    }
+    await userRef.add(sensorData);
 
-    if (data.length === 0) {
-      return res.status(404).send({ error: 'No data available' });
-    }
-
-    res.status(200).send(data);
+    res.status(200).send({
+      ...sensorData,
+      status: 'Values inserted into the sensors collection.',
+    });
   } catch (error) {
-    console.error('Error retrieving documents:', error);
-    res.status(500).send({ error: 'Error retrieving documents' });
+    console.error('Error inserting values:', error);
+    res.status(500).send({ error: 'Error inserting values' });
   }
 });
-
 // POST /data - Insert new sensor data
 app.post('/data', async (req, res) => {
   try {
