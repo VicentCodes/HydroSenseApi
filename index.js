@@ -17,7 +17,6 @@ admin.initializeApp({
 
 // Initialize Firestore
 const db = fire.firestore();
-
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
